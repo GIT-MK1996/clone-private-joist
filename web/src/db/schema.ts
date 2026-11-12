@@ -1,7 +1,42 @@
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+export const loginTokens = sqliteTable("login_tokens", {
+  tokenHash: text("token_hash").primaryKey(),
+  email: text("email").notNull(),
+  expiresAt: text("expires_at").notNull(),
+  usedAt: text("used_at"),
+});
+
+export const sessions = sqliteTable("sessions", {
+  tokenHash: text("token_hash").primaryKey(),
+  userId: text("user_id").notNull(),
+  expiresAt: text("expires_at").notNull(),
+  createdAt: text("created_at").notNull(),
+});
+
+export const payments = sqliteTable("payments", {
+  id: text("id").primaryKey(),
+  documentId: text("document_id").notNull(),
+  provider: text("provider").notNull().default("mollie"),
+  providerId: text("provider_id").notNull(),
+  amountCents: integer("amount_cents").notNull(),
+  status: text("status").notNull(),
+  method: text("method"),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export const companies = sqliteTable("companies", {
   id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  mollieKeyEnc: text("mollie_key_enc").notNull().default(""),
+  mollieMode: text("mollie_mode").notNull().default(""),
   name: text("name").notNull(),
   email: text("email").notNull().default(""),
   phone: text("phone").notNull().default(""),

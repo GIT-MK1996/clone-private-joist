@@ -1,7 +1,29 @@
 // Kept in sync with replica/schema.sql. Runs once at startup (idempotent).
 export const DDL = [
+  `create table if not exists users (
+    id text primary key,
+    email text not null unique,
+    created_at text not null
+  )`,
+  `create table if not exists login_tokens (
+    token_hash text primary key,
+    email text not null,
+    expires_at text not null,
+    used_at text
+  )`,
+  `create index if not exists login_tokens_email on login_tokens (email, expires_at)`,
+  `create table if not exists sessions (
+    token_hash text primary key,
+    user_id text not null references users(id) on delete cascade,
+    expires_at text not null,
+    created_at text not null
+  )`,
+  `create index if not exists sessions_user on sessions (user_id)`,
   `create table if not exists companies (
     id text primary key,
+    user_id text not null unique references users(id) on delete cascade,
+    mollie_key_enc text not null default '',
+    mollie_mode text not null default '' check (mollie_mode in ('','test','live')),
     name text not null,
     email text not null default '',
     phone text not null default '',
@@ -87,4 +109,16 @@ export const DDL = [
     meta text not null default '{}'
   )`,
   `create index if not exists events_document on events (document_id, at)`,
+  `create table if not exists payments (
+    id text primary key,
+    document_id text not null references documents(id) on delete cascade,
+    provider text not null default 'mollie',
+    provider_id text not null unique,
+    amount_cents integer not null,
+    status text not null,
+    method text,
+    created_at text not null,
+    updated_at text not null
+  )`,
+  `create index if not exists payments_document on payments (document_id)`,
 ];

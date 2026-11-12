@@ -44,3 +44,10 @@ Business loans,payments,could,yes,skip,partner deal and regulated licence
 AI receptionist,leads,could,yes,skip,third-party product
 Edge rewards and partner perks,marketing,could,yes,skip,partner network
 QuickBooks sync,integrations,could,yes,skip,US product; NL accounting sync instead
+Unlimited documents in every paid plan plus price guarantee,billing,must,no,no,fix 1: price/limits 36 reviews 5 sources
+Read-only access and export (pdf csv) after cancelling,billing,must,no,no,fix 2: data hostage 7 reviews 3 sources
+Offline drafts on phone (PWA),quotes,should,no,no,fix 3: bad mobile app 19 reviews 3 sources
+Human support via WhatsApp,support,should,no,no,fix 4: support unreachable 15 reviews 5 sources
+No in-app pop-ups or upsell,app,should,no,no,fix 5: 7 reviews 3 sources
+Pause subscription (winter / holiday),billing,could,no,no,fix 6: thin (1 review)
+Client draws signature on own device,quotes,could,no,no,fix 7: thin (1 review)

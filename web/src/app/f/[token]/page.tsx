@@ -4,7 +4,14 @@ import PublicDocPage from "@/components/PublicDocPage";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Factuur", robots: { index: false, follow: false } };
 
-export default async function Page({ params }: { params: Promise<{ token: string }> }) {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ betaling?: string }>;
+}) {
   const { token } = await params;
-  return <PublicDocPage token={token} kind="invoice" />;
+  const { betaling } = await searchParams;
+  return <PublicDocPage token={token} kind="invoice" betaling={betaling} />;
 }

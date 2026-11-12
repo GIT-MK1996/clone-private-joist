@@ -1,17 +1,26 @@
 import "server-only";
 import { and, asc, desc, eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 import { db, ready } from "@/db";
 import { clients, companies, documents, events, lineItems } from "@/db/schema";
+import { requireUser } from "./auth";
 
 /**
- * The one place that reads data. Every query is scoped to the current company.
- * Until auth exists the "current company" is the single seeded one.
+ * The one place that reads data. Every query is scoped to the company of the
+ * logged-in user. No session → /login, no company yet → /welkom.
  */
 export async function getCompany() {
   await ready();
-  const [company] = await db.select().from(companies).limit(1);
-  if (!company) throw new Error("Geen bedrijf gevonden");
+  const user = await requireUser();
+  const [company] = await db.select().from(companies).where(eq(companies.userId, user.id));
+  if (!company) redirect("/welkom");
   return company;
+}
+
+export async function getCompanyForUser(userId: string) {
+  await ready();
+  const [company] = await db.select().from(companies).where(eq(companies.userId, userId));
+  return company ?? null;
 }
 
 export async function listDocuments(kind?: "quote" | "invoice") {

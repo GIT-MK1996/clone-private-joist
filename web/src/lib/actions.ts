@@ -7,8 +7,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { clients, companies, documents, events, lineItems } from "@/db/schema";
-import { getCompany } from "./data";
-import { addDays, computeTotals, isEditable, today, type LineInput } from "./calc";
+import { getCompany, getCompanyForUser } from "./data";
+import { addDays, computeTotals, eur, formatDate, isEditable, today, type LineInput } from "./calc";
+import { requireUser } from "./auth";
+import { sendEmail, simpleHtml } from "./email";
+import { baseUrl } from "./url";
+import { encrypt } from "./secure";
+import { mollieMode, verifyKey } from "./mollie";
 
 const token = customAlphabet("abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789", 28);
 const now = () => new Date().toISOString();
@@ -153,12 +158,38 @@ async function ownDoc(id: string) {
   return { doc, company };
 }
 
+/** Marks the document sent and, when the client has an email address, mails the link. */
 export async function markSent(id: string) {
-  const { doc } = await ownDoc(id);
-  if (doc.status === "draft") {
-    await db.update(documents).set({ status: "sent", sentAt: now(), updatedAt: now() }).where(eq(documents.id, id));
-    await logEvent(id, "sent");
+  const { doc, company } = await ownDoc(id);
+  if (doc.status !== "draft") return;
+  const [client] = doc.clientId ? await db.select().from(clients).where(eq(clients.id, doc.clientId)) : [];
+  if (!client) throw new Error("Kies eerst een klant");
+
+  let emailed = false;
+  if (client.email) {
+    const isQuote = doc.kind === "quote";
+    const link = `${await baseUrl()}/${isQuote ? "o" : "f"}/${doc.publicToken}`;
+    const what = isQuote ? "offerte" : "factuur";
+    const lines = [
+      `Beste ${client.contactName || client.name},`,
+      isQuote
+        ? `Hierbij de offerte${doc.title ? ` voor ${doc.title}` : ""} van ${eur(doc.totalCents)}. U kunt de offerte online bekijken en direct akkoord geven.`
+        : `Hierbij de factuur ${doc.number}${doc.title ? ` voor ${doc.title}` : ""} van ${eur(doc.totalCents)}, te voldoen vóór ${formatDate(doc.dueDate)}.`,
+      `Met vriendelijke groet,`,
+      company.name,
+    ];
+    const res = await sendEmail({
+      to: client.email,
+      replyTo: company.email || undefined,
+      subject: `${isQuote ? "Offerte" : "Factuur"} ${doc.number} van ${company.name}`,
+      text: `${lines.join("\n\n")}\n\nBekijk de ${what}: ${link}`,
+      html: simpleHtml(lines, { label: isQuote ? "Bekijk offerte" : "Bekijk en betaal factuur", url: link }),
+    });
+    if (!res.ok) throw new Error("De e-mail kon niet worden verstuurd. Probeer het opnieuw of deel de link via WhatsApp.");
+    emailed = true;
   }
+  await db.update(documents).set({ status: "sent", sentAt: now(), updatedAt: now() }).where(eq(documents.id, id));
+  await logEvent(id, "sent", { emailed, to: emailed ? client.email : null });
   revalidatePath(`/app/doc/${id}`);
   revalidatePath("/app");
 }
@@ -247,7 +278,55 @@ export async function markViewed(t: string) {
   }
 }
 
-// ---- Settings ----
+// ---- Onboarding & settings ----
+
+export async function createCompany(formData: FormData) {
+  const user = await requireUser();
+  if (await getCompanyForUser(user.id)) redirect("/app");
+  const s = (k: string) => String(formData.get(k) ?? "").trim().slice(0, 200);
+  const name = s("name");
+  if (!name) redirect("/welkom");
+  await db.insert(companies).values({
+    id: randomUUID(),
+    userId: user.id,
+    name,
+    email: user.email,
+    phone: s("phone"),
+    address: s("address"),
+    postcode: s("postcode"),
+    city: s("city"),
+    kvk: s("kvk"),
+    btwId: s("btwId"),
+    iban: s("iban"),
+    kor: formData.get("kor") === "on",
+    createdAt: now(),
+    updatedAt: now(),
+  });
+  redirect("/app");
+}
+
+export async function saveMollieKey(formData: FormData) {
+  const company = await getCompany();
+  const key = String(formData.get("mollieKey") ?? "").trim();
+  const mode = mollieMode(key);
+  if (!mode) redirect("/app/instellingen?mollie=ongeldig#betalingen");
+  try {
+    await verifyKey(key);
+  } catch {
+    redirect("/app/instellingen?mollie=geweigerd#betalingen");
+  }
+  await db
+    .update(companies)
+    .set({ mollieKeyEnc: encrypt(key), mollieMode: mode, updatedAt: now() })
+    .where(eq(companies.id, company.id));
+  redirect("/app/instellingen?mollie=ok#betalingen");
+}
+
+export async function removeMollieKey() {
+  const company = await getCompany();
+  await db.update(companies).set({ mollieKeyEnc: "", mollieMode: "", updatedAt: now() }).where(eq(companies.id, company.id));
+  redirect("/app/instellingen#betalingen");
+}
 
 export async function saveCompany(formData: FormData) {
   const company = await getCompany();

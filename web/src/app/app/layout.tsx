@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCompany } from "@/lib/data";
+import { logout } from "@/lib/auth-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             ))}
           </nav>
           <span className="ml-auto truncate text-sm text-muted">{company.name}</span>
+          <form action={logout}>
+            <button className="btn-ghost px-2 py-1 text-sm">Uitloggen</button>
+          </form>
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
