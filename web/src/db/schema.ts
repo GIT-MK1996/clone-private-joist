@@ -23,7 +23,7 @@ export const sessions = sqliteTable("sessions", {
 export const payments = sqliteTable("payments", {
   id: text("id").primaryKey(),
   documentId: text("document_id").notNull(),
-  provider: text("provider").notNull().default("mollie"),
+  provider: text("provider").notNull(),
   providerId: text("provider_id").notNull(),
   amountCents: integer("amount_cents").notNull(),
   status: text("status").notNull(),
@@ -35,8 +35,9 @@ export const payments = sqliteTable("payments", {
 export const companies = sqliteTable("companies", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull(),
-  mollieKeyEnc: text("mollie_key_enc").notNull().default(""),
-  mollieMode: text("mollie_mode").notNull().default(""),
+  payProvider: text("pay_provider").notNull().default(""),
+  payKeyEnc: text("pay_key_enc").notNull().default(""),
+  payMode: text("pay_mode").notNull().default(""),
   name: text("name").notNull(),
   email: text("email").notNull().default(""),
   phone: text("phone").notNull().default(""),

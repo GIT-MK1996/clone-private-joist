@@ -6,6 +6,7 @@ import DocumentView from "@/components/DocumentView";
 import ShareBox from "@/components/ShareBox";
 import { convertToInvoice, markPaid, markSent } from "@/lib/actions";
 import { getDocument, listClients } from "@/lib/data";
+import { syncLatestPayment } from "@/lib/payments";
 import { STATUS_LABEL, STATUS_TONE, effectiveStatus, eur, formatDate, isEditable } from "@/lib/calc";
 
 const EVENT_LABEL: Record<string, string> = {
@@ -21,8 +22,12 @@ const EVENT_LABEL: Record<string, string> = {
 
 export default async function DocPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const data = await getDocument(id);
+  let data = await getDocument(id);
   if (!data) notFound();
+  // An online payment may have completed since the last visit: check with the provider.
+  if (data.doc.kind === "invoice" && ["sent", "viewed"].includes(data.doc.status)) {
+    if ((await syncLatestPayment(data.doc.id)) === "paid") data = (await getDocument(id))!;
+  }
   const { doc, lines, client, company, history, invoices } = data;
   const clients = await listClients();
   const st = effectiveStatus(doc);

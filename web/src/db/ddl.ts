@@ -22,8 +22,9 @@ export const DDL = [
   `create table if not exists companies (
     id text primary key,
     user_id text not null unique references users(id) on delete cascade,
-    mollie_key_enc text not null default '',
-    mollie_mode text not null default '' check (mollie_mode in ('','test','live')),
+    pay_provider text not null default '' check (pay_provider in ('','mollie','stripe')),
+    pay_key_enc text not null default '',
+    pay_mode text not null default '' check (pay_mode in ('','test','live')),
     name text not null,
     email text not null default '',
     phone text not null default '',
@@ -112,7 +113,7 @@ export const DDL = [
   `create table if not exists payments (
     id text primary key,
     document_id text not null references documents(id) on delete cascade,
-    provider text not null default 'mollie',
+    provider text not null check (provider in ('mollie','stripe')),
     provider_id text not null unique,
     amount_cents integer not null,
     status text not null,

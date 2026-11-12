@@ -60,7 +60,7 @@ export default async function PublicDocPage({
         <form action={`/api/pay/${token}`} method="post" className="card no-print flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
           <div className="flex-1">
             <p className="text-lg font-semibold">Te betalen: {eur(doc.totalCents)}</p>
-            <p className="text-sm text-muted">Veilig betalen met iDEAL, Bancontact of creditcard via Mollie.</p>
+            <p className="text-sm text-muted">Veilig betalen met iDEAL of creditcard.</p>
           </div>
           <button className="btn-primary px-6 py-3 text-base">Betaal nu</button>
         </form>

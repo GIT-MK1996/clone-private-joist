@@ -1,20 +1,21 @@
 import { getCompany } from "@/lib/data";
-import { removeMollieKey, saveCompany, saveMollieKey } from "@/lib/actions";
+import { removePaymentKey, saveCompany, savePaymentKey } from "@/lib/actions";
 import { VAT_RATES } from "@/lib/calc";
 
-const MOLLIE_MSG: Record<string, [string, string]> = {
-  ok: ["Mollie is gekoppeld ✓", "bg-emerald-50 text-emerald-800"],
-  ongeldig: ["Dat is geen geldige Mollie API-sleutel. Hij begint met test_ of live_.", "bg-rose-50 text-rose-800"],
-  geweigerd: ["Mollie accepteert deze sleutel niet. Controleer of je hem goed hebt gekopieerd.", "bg-rose-50 text-rose-800"],
+const PAY_MSG: Record<string, [string, string]> = {
+  ok: ["Betalingen zijn gekoppeld ✓", "bg-emerald-50 text-emerald-800"],
+  ongeldig: ["Dit is geen geldige sleutel. Een Stripe-sleutel begint met sk_test_ of sk_live_, een Mollie-sleutel met test_ of live_.", "bg-rose-50 text-rose-800"],
+  publishable: ["Dit is de publieke sleutel (pk_…). Gebruik de geheime sleutel: die begint met sk_test_ of sk_live_.", "bg-rose-50 text-rose-800"],
+  geweigerd: ["Deze sleutel wordt niet geaccepteerd. Controleer of je hem helemaal goed hebt gekopieerd.", "bg-rose-50 text-rose-800"],
 };
 
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ opgeslagen?: string; mollie?: string }>;
+  searchParams: Promise<{ opgeslagen?: string; betaal?: string }>;
 }) {
   const c = await getCompany();
-  const { opgeslagen, mollie } = await searchParams;
+  const { opgeslagen, betaal } = await searchParams;
   const text: [keyof typeof c, string, string?][] = [
     ["name", "Bedrijfsnaam"],
     ["email", "E-mail (antwoorden van klanten komen hier)"],
@@ -79,26 +80,28 @@ export default async function SettingsPage({
       <section id="betalingen" className="card space-y-3 p-4">
         <h2 className="font-semibold">Online betalen (iDEAL)</h2>
         <p className="text-sm text-muted">
-          Koppel je eigen Mollie-account. Je klant betaalt dan met iDEAL, Bancontact of creditcard via de knop op de factuur, en het geld komt
-          direct bij jou binnen. Werkbon rekent hier niets voor. Mollie rekent per betaling (iDEAL ongeveer € 0,29).
+          Koppel je eigen Stripe- of Mollie-account. Je klant betaalt dan met iDEAL of creditcard via de knop op de factuur, en het geld komt
+          direct bij jou binnen. Werkbon rekent hier niets voor. Stripe of Mollie rekent een klein bedrag per betaling.
         </p>
-        {mollie && MOLLIE_MSG[mollie] && <p className={`rounded-lg p-3 text-sm ${MOLLIE_MSG[mollie][1]}`}>{MOLLIE_MSG[mollie][0]}</p>}
-        {c.mollieKeyEnc ? (
+        {betaal && PAY_MSG[betaal] && <p className={`rounded-lg p-3 text-sm ${PAY_MSG[betaal][1]}`}>{PAY_MSG[betaal][0]}</p>}
+        {c.payKeyEnc ? (
           <div className="flex flex-wrap items-center gap-3">
-            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${c.mollieMode === "live" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-900"}`}>
-              {c.mollieMode === "live" ? "Live: echte betalingen" : "Testmodus: geen echt geld"}
+            <span className="text-sm font-semibold">{c.payProvider === "stripe" ? "Stripe" : "Mollie"}</span>
+            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${c.payMode === "live" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-900"}`}>
+              {c.payMode === "live" ? "Live: echte betalingen" : "Testmodus: geen echt geld"}
             </span>
-            <form action={removeMollieKey}>
+            <form action={removePaymentKey}>
               <button className="btn-secondary">Ontkoppelen</button>
             </form>
           </div>
         ) : null}
-        <form action={saveMollieKey} className="flex flex-col gap-2 sm:flex-row">
-          <input name="mollieKey" type="password" autoComplete="off" placeholder="live_… of test_…" aria-label="Mollie API-sleutel" required />
-          <button className="btn-primary whitespace-nowrap">{c.mollieKeyEnc ? "Sleutel vervangen" : "Koppelen"}</button>
+        <form action={savePaymentKey} className="flex flex-col gap-2 sm:flex-row">
+          <input name="payKey" type="password" autoComplete="off" placeholder="sk_test_… (Stripe) of test_… (Mollie)" aria-label="Geheime API-sleutel" required />
+          <button className="btn-primary whitespace-nowrap">{c.payKeyEnc ? "Sleutel vervangen" : "Koppelen"}</button>
         </form>
         <p className="text-xs text-muted">
-          Je vindt de sleutel in het Mollie-dashboard onder Developers → API-sleutels. Begin met de test-sleutel om het uit te proberen. De sleutel wordt versleuteld opgeslagen.
+          Stripe: Dashboard → Developers → API keys → <strong>Secret key</strong> (begint met sk_test_). Mollie: Developers → API-sleutels. Begin met
+          een testsleutel om het uit te proberen. De sleutel wordt versleuteld opgeslagen.
         </p>
       </section>
     </div>

@@ -13,7 +13,7 @@ import { requireUser } from "./auth";
 import { sendEmail, simpleHtml } from "./email";
 import { baseUrl } from "./url";
 import { encrypt } from "./secure";
-import { mollieMode, verifyKey } from "./mollie";
+import { detectProvider, verifyProviderKey } from "./payments";
 
 const token = customAlphabet("abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789", 28);
 const now = () => new Date().toISOString();
@@ -305,26 +305,31 @@ export async function createCompany(formData: FormData) {
   redirect("/app");
 }
 
-export async function saveMollieKey(formData: FormData) {
+/** Accepts a Stripe secret/restricted key or a Mollie API key; detects which. */
+export async function savePaymentKey(formData: FormData) {
   const company = await getCompany();
-  const key = String(formData.get("mollieKey") ?? "").trim();
-  const mode = mollieMode(key);
-  if (!mode) redirect("/app/instellingen?mollie=ongeldig#betalingen");
+  const key = String(formData.get("payKey") ?? "").trim();
+  const found = detectProvider(key);
+  if (!found) redirect(`/app/instellingen?betaal=${key.startsWith("pk_") ? "publishable" : "ongeldig"}#betalingen`);
   try {
-    await verifyKey(key);
-  } catch {
-    redirect("/app/instellingen?mollie=geweigerd#betalingen");
+    await verifyProviderKey(found.provider, key);
+  } catch (e) {
+    console.error("Payment key rejected", e);
+    redirect("/app/instellingen?betaal=geweigerd#betalingen");
   }
   await db
     .update(companies)
-    .set({ mollieKeyEnc: encrypt(key), mollieMode: mode, updatedAt: now() })
+    .set({ payProvider: found.provider, payKeyEnc: encrypt(key), payMode: found.mode, updatedAt: now() })
     .where(eq(companies.id, company.id));
-  redirect("/app/instellingen?mollie=ok#betalingen");
+  redirect("/app/instellingen?betaal=ok#betalingen");
 }
 
-export async function removeMollieKey() {
+export async function removePaymentKey() {
   const company = await getCompany();
-  await db.update(companies).set({ mollieKeyEnc: "", mollieMode: "", updatedAt: now() }).where(eq(companies.id, company.id));
+  await db
+    .update(companies)
+    .set({ payProvider: "", payKeyEnc: "", payMode: "", updatedAt: now() })
+    .where(eq(companies.id, company.id));
   redirect("/app/instellingen#betalingen");
 }
 
