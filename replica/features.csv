@@ -1,0 +1,46 @@
+feature,area,priority,original,clone,notes
+Sign up with email magic link or Google,onboarding,must,yes,no,
+Company profile with logo KvK btw-id IBAN,onboarding,must,yes,no,NL legal fields
+Create quote with line items,quotes,must,yes,no,
+VAT rate per line (21/9/0/verlegd) with totals per rate,quotes,must,partial,no,NL: original has generic tax
+Discount on document,quotes,must,yes,no,
+Customer-facing and private notes,quotes,must,yes,no,
+Quote expiry date,quotes,must,yes,no,
+Pick or create client inline,clients,must,yes,no,
+Saved items price list,items,must,yes,no,
+Send document by email,sending,must,yes,no,
+Shareable public link (WhatsApp),sending,must,partial,no,NL: WhatsApp is how tradespeople talk to clients
+Client approves quote online with name,quotes,must,yes,no,
+Convert approved quote to invoice in one tap,invoices,must,yes,no,
+Sequential invoice numbering,invoices,must,yes,no,NL legal requirement
+Invoice due date and payment terms,invoices,must,yes,no,
+Professional PDF download,documents,must,yes,no,
+Client pays invoice online with iDEAL,payments,must,partial,no,NL: original has card/ACH/PayPal
+Status tracking (sent viewed approved paid overdue),documents,must,yes,no,
+Mark invoice paid manually,payments,must,yes,no,
+Dashboard with open quotes and unpaid amounts,dashboard,must,yes,no,
+Notification when client views approves or pays,notifications,should,yes,no,
+Automatic payment reminders,invoices,should,yes,no,
+Deposit request on quote,payments,should,yes,no,
+Sections to group line items,quotes,should,yes,no,
+Photo and file attachments,documents,should,yes,no,
+Client list and client detail,clients,should,yes,no,
+Duplicate document,documents,should,yes,no,
+Kleineondernemersregeling (KOR) mode without VAT,invoices,should,no,no,NL extra
+QR code / IBAN + reference on PDF,payments,should,yes,no,
+Subscription with free tier limit (5 docs/mo) and trial,billing,should,yes,no,
+Mobile-first editor usable on site,quotes,should,yes,no,
+Project templates,quotes,could,yes,no,
+Drawn signature,quotes,could,yes,no,
+AI writes descriptions from rough notes,quotes,could,yes,no,
+Change orders,quotes,could,yes,no,
+Milestone / partial invoices,invoices,could,yes,no,
+Business reports and export,reports,could,yes,no,
+Accounting sync (Moneybird / e-Boekhouden),integrations,could,no,no,NL instead of QuickBooks
+Expense tracking,reports,could,yes,skip,not part of core loop for v1
+Job scheduling and visits (Run plan),jobs,could,yes,skip,separate product tier; revisit later
+Homeowner financing,payments,could,yes,skip,partner lenders and regulated licence
+Business loans,payments,could,yes,skip,partner deal and regulated licence
+AI receptionist,leads,could,yes,skip,third-party product
+Edge rewards and partner perks,marketing,could,yes,skip,partner network
+QuickBooks sync,integrations,could,yes,skip,US product; NL accounting sync instead
