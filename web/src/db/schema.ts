@@ -11,6 +11,8 @@ export const loginTokens = sqliteTable("login_tokens", {
   email: text("email").notNull(),
   expiresAt: text("expires_at").notNull(),
   usedAt: text("used_at"),
+  codeHash: text("code_hash").notNull().default(""),
+  attempts: integer("attempts").notNull().default(0),
 });
 
 export const sessions = sqliteTable("sessions", {

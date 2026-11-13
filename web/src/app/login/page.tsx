@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth";
-import { requestLogin } from "@/lib/auth-actions";
+import { confirmCode, requestLogin } from "@/lib/auth-actions";
 import { Logo } from "@/components/Logo";
 
 export const metadata: Metadata = { title: "Inloggen – Klusnota" };
@@ -14,6 +14,7 @@ const ERRORS: Record<string, string> = {
   teveel: "Te veel pogingen. Probeer het over een kwartier opnieuw.",
   mail: "De e-mail kon niet worden verstuurd. Probeer het later opnieuw.",
   verlopen: "Deze inloglink is verlopen of al gebruikt. Vraag een nieuwe aan.",
+  code: "Deze code klopt niet of is verlopen. Kijk nog eens in de mail, of vraag een nieuwe aan.",
 };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ verstuurd?: string; fout?: string }> }) {
@@ -29,7 +30,24 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       {verstuurd ? (
         <div className="card space-y-3 p-6">
           <h1 className="text-xl font-bold">Check je mail</h1>
-          <p className="text-muted">We hebben je een inloglink gestuurd. Klik op de knop in de mail om in te loggen. De link is 20 minuten geldig.</p>
+          <p className="text-muted">We hebben je een mail gestuurd met een code van 6 cijfers. Typ hem hieronder in, of klik op de knop in de mail.</p>
+          {fout && <p className="rounded-lg bg-rose-50 p-3 text-sm text-rose-800">{ERRORS[fout] ?? "Er ging iets mis."}</p>}
+          <form action={confirmCode} className="space-y-2">
+            <label htmlFor="code">Inlogcode</label>
+            <input
+              id="code"
+              name="code"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              pattern="[0-9 ]{6,7}"
+              maxLength={7}
+              required
+              autoFocus
+              placeholder="123 456"
+              className="text-center text-2xl tracking-[0.3em] tabular-nums"
+            />
+            <button className="btn-primary w-full py-3">Inloggen</button>
+          </form>
           <p className="text-sm text-muted">Niks ontvangen? Kijk in je spam of <Link href="/login" className="underline">probeer opnieuw</Link>.</p>
           {devLink && (
             <div className="rounded-lg border border-dashed border-amber-400 bg-amber-50 p-3 text-sm">

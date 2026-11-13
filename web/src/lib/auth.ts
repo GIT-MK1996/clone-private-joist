@@ -1,6 +1,6 @@
 import "server-only";
-import { randomUUID } from "crypto";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { randomInt, randomUUID } from "crypto";
+import { and, eq, gt, isNull, lt, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { db, ready } from "@/db";
@@ -14,15 +14,45 @@ const LOGIN_MINUTES = 20;
 const now = () => new Date();
 const iso = (d: Date) => d.toISOString();
 
+const MAX_CODE_ATTEMPTS = 5;
+const codeHash = (email: string, code: string) => sha256(`${email}:${code}`);
+
+/** A link token plus a 6-digit code, so you can request on the phone and read the mail on the pc. */
 export async function createLoginToken(email: string) {
   await ready();
   const token = randomToken();
+  const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
   await db.insert(loginTokens).values({
     tokenHash: sha256(token),
     email,
     expiresAt: iso(new Date(Date.now() + LOGIN_MINUTES * 60_000)),
+    codeHash: codeHash(email, code),
   });
-  return token;
+  return { token, code };
+}
+
+async function userIdFor(email: string) {
+  let [user] = await db.select().from(users).where(eq(users.email, email));
+  if (!user) {
+    [user] = await db.insert(users).values({ id: randomUUID(), email, createdAt: iso(now()) }).returning();
+  }
+  return user.id;
+}
+
+/** One-time use, max 5 wrong tries per code. Returns the user id, creating the user on first login. */
+export async function consumeLoginCode(email: string, code: string) {
+  await ready();
+  const open = and(eq(loginTokens.email, email), isNull(loginTokens.usedAt), gt(loginTokens.expiresAt, iso(now())));
+  const [row] = await db
+    .update(loginTokens)
+    .set({ usedAt: iso(now()) })
+    .where(and(open, eq(loginTokens.codeHash, codeHash(email, code)), lt(loginTokens.attempts, MAX_CODE_ATTEMPTS)))
+    .returning();
+  if (!row) {
+    await db.update(loginTokens).set({ attempts: sql`${loginTokens.attempts} + 1` }).where(open);
+    return null;
+  }
+  return userIdFor(email);
 }
 
 /** One-time use. Returns the user id, creating the user on first login. */
@@ -35,11 +65,7 @@ export async function consumeLoginToken(token: string) {
     .where(and(eq(loginTokens.tokenHash, hash), isNull(loginTokens.usedAt), gt(loginTokens.expiresAt, iso(now()))))
     .returning();
   if (!row) return null;
-  let [user] = await db.select().from(users).where(eq(users.email, row.email));
-  if (!user) {
-    [user] = await db.insert(users).values({ id: randomUUID(), email: row.email, createdAt: iso(now()) }).returning();
-  }
-  return user.id;
+  return userIdFor(row.email);
 }
 
 export async function startSession(userId: string) {

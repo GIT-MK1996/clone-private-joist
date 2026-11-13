@@ -133,4 +133,6 @@ export const MIGRATIONS = [
   `alter table companies add column sub_period_end text not null default ''`,
   `alter table companies add column sub_cancel_at_end integer not null default 0`,
   `alter table companies add column sub_checked_at text not null default ''`,
+  `alter table login_tokens add column code_hash text not null default ''`,
+  `alter table login_tokens add column attempts integer not null default 0`,
 ];
