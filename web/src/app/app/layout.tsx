@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getCompany } from "@/lib/data";
 import { logout } from "@/lib/auth-actions";
+import { Logo } from "@/components/Logo";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="no-print sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center gap-6 px-4 py-3">
           <Link href="/app" className="font-bold tracking-tight">
-            <span className="text-brand">■</span> Werkbon
+            <Logo />
           </Link>
           <nav className="hidden gap-1 sm:flex">
             {nav.map((n) => (

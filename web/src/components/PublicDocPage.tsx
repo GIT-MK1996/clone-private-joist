@@ -90,7 +90,7 @@ export default async function PublicDocPage({
       )}
 
       <p className="no-print text-center text-xs text-muted">
-        <a href={`/print/${token}`} className="underline">Download als PDF</a> · Gemaakt met Werkbon
+        <a href={`/print/${token}`} className="underline">Download als PDF</a> · Gemaakt met Klusnota
       </p>
     </main>
   );

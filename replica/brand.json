@@ -1,0 +1,13 @@
+{
+  "name": "Klusnota",
+  "avoid": ["Joist", "Werkbon", "EverPro"],
+  "domains": ["joist.com", "joistapp.com"],
+  "colors": ["#c2410c", "#fff1e8", "#fb923c"],
+  "palette": {
+    "brand": "#E0A100",
+    "brandInk": "#17202A",
+    "brandText": "#8A5F00",
+    "brandSoft": "#FFF6DB",
+    "ink": "#17202A"
+  }
+}

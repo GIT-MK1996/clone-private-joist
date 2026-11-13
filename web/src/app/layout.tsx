@@ -5,11 +5,11 @@ import "./globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Werkbon – offertes en facturen voor vakmensen",
+  title: "Klusnota – offertes en facturen voor vakmensen",
   description: "Maak in 2 minuten een offerte op je telefoon. Klant zegt online akkoord, jij maakt er met één tik een factuur van.",
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#c2410c" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#e0a100" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

@@ -31,6 +31,6 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 export function simpleHtml(lines: string[], button?: { label: string; url: string }) {
   return `<!doctype html><html><body style="font-family:Arial,sans-serif;font-size:15px;color:#1c1917;line-height:1.5;max-width:560px;margin:auto;padding:24px">
 ${lines.map((l) => `<p>${esc(l)}</p>`).join("\n")}
-${button ? `<p><a href="${esc(button.url)}" style="display:inline-block;background:#c2410c;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold">${esc(button.label)}</a></p><p style="font-size:12px;color:#78716c">Werkt de knop niet? Kopieer deze link: ${esc(button.url)}</p>` : ""}
+${button ? `<p><a href="${esc(button.url)}" style="display:inline-block;background:#e0a100;color:#17202a;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold">${esc(button.label)}</a></p><p style="font-size:12px;color:#78716c">Werkt de knop niet? Kopieer deze link: ${esc(button.url)}</p>` : ""}
 </body></html>`;
 }

@@ -31,7 +31,7 @@ export default function DocumentView({
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-bold tracking-tight text-brand">{isQuote ? "Offerte" : "Factuur"}</p>
+          <p className="text-2xl font-bold tracking-tight text-brand-text">{isQuote ? "Offerte" : "Factuur"}</p>
           <p className="font-semibold">{doc.number}</p>
         </div>
       </header>

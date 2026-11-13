@@ -81,7 +81,7 @@ export default async function SettingsPage({
         <h2 className="font-semibold">Online betalen (iDEAL)</h2>
         <p className="text-sm text-muted">
           Koppel je eigen Stripe- of Mollie-account. Je klant betaalt dan met iDEAL of creditcard via de knop op de factuur, en het geld komt
-          direct bij jou binnen. Werkbon rekent hier niets voor. Stripe of Mollie rekent een klein bedrag per betaling.
+          direct bij jou binnen. Klusnota rekent hier niets voor. Stripe of Mollie rekent een klein bedrag per betaling.
         </p>
         {betaal && PAY_MSG[betaal] && <p className={`rounded-lg p-3 text-sm ${PAY_MSG[betaal][1]}`}>{PAY_MSG[betaal][0]}</p>}
         {c.payKeyEnc ? (

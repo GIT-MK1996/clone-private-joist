@@ -102,7 +102,7 @@ export default async function DocPage({ params }: { params: Promise<{ id: string
         <p className="text-sm">
           Gefactureerd in{" "}
           {invoices.map((i) => (
-            <Link key={i.id} href={`/app/doc/${i.id}`} className="font-semibold text-brand underline">
+            <Link key={i.id} href={`/app/doc/${i.id}`} className="font-semibold text-brand-text underline">
               factuur {i.number}
             </Link>
           ))}

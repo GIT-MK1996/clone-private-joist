@@ -4,8 +4,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth";
 import { requestLogin } from "@/lib/auth-actions";
+import { Logo } from "@/components/Logo";
 
-export const metadata: Metadata = { title: "Inloggen – Werkbon" };
+export const metadata: Metadata = { title: "Inloggen – Klusnota" };
 export const dynamic = "force-dynamic";
 
 const ERRORS: Record<string, string> = {
@@ -23,7 +24,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-4 py-10">
       <Link href="/" className="mb-8 text-lg font-bold tracking-tight">
-        <span className="text-brand">■</span> Werkbon
+        <Logo />
       </Link>
       {verstuurd ? (
         <div className="card space-y-3 p-6">
@@ -33,7 +34,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           {devLink && (
             <div className="rounded-lg border border-dashed border-amber-400 bg-amber-50 p-3 text-sm">
               <p className="font-semibold">Ontwikkelmodus (geen e-mail ingesteld)</p>
-              <a href={devLink} className="break-all text-brand underline">Open inloglink</a>
+              <a href={devLink} className="break-all text-brand-text underline">Open inloglink</a>
             </div>
           )}
         </div>

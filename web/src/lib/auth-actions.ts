@@ -28,10 +28,10 @@ export async function requestLogin(formData: FormData) {
   const link = `${await baseUrl()}/login/bevestig?token=${encodeURIComponent(token)}`;
   const res = await sendEmail({
     to: email,
-    subject: "Je inloglink voor Werkbon",
+    subject: "Je inloglink voor Klusnota",
     text: `Klik op deze link om in te loggen (20 minuten geldig):\n${link}\n\nHeb je dit niet aangevraagd? Dan kun je deze mail negeren.`,
     html: simpleHtml(
-      ["Klik op de knop om in te loggen bij Werkbon. De link is 20 minuten geldig.", "Heb je dit niet aangevraagd? Dan kun je deze mail negeren."],
+      ["Klik op de knop om in te loggen bij Klusnota. De link is 20 minuten geldig.", "Heb je dit niet aangevraagd? Dan kun je deze mail negeren."],
       { label: "Inloggen", url: link },
     ),
   });

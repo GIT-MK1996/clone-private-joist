@@ -3,8 +3,9 @@ import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { createCompany } from "@/lib/actions";
 import { getCompanyForUser } from "@/lib/data";
+import { Logo } from "@/components/Logo";
 
-export const metadata: Metadata = { title: "Welkom – Werkbon" };
+export const metadata: Metadata = { title: "Welkom – Klusnota" };
 export const dynamic = "force-dynamic";
 
 const fields: [string, string, string?, boolean?][] = [
@@ -24,7 +25,7 @@ export default async function WelcomePage() {
   return (
     <main className="mx-auto max-w-xl px-4 py-10">
       <p className="mb-2 text-lg font-bold tracking-tight">
-        <span className="text-brand">■</span> Werkbon
+        <Logo />
       </p>
       <h1 className="text-2xl font-bold">Welkom! Eerst je bedrijfsgegevens</h1>
       <p className="mt-1 text-muted">
