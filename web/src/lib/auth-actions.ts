@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { db, ready } from "@/db";
 import { companies, loginTokens } from "@/db/schema";
-import { consumeLoginCode, consumeLoginToken, createLoginToken, endSession, startSession } from "./auth";
+import { consumeLoginCode, consumeLoginToken, createLoginToken, endSession, finishLogin } from "./auth";
 import { sendEmail, simpleHtml } from "./email";
 import { baseUrl } from "./url";
 
@@ -56,23 +56,15 @@ export async function confirmCode(formData: FormData) {
   if (code.length !== 6) redirect("/login?verstuurd=1&fout=code");
   const userId = await consumeLoginCode(email, code);
   if (!userId) redirect("/login?verstuurd=1&fout=code");
-  await finish(userId);
+  await finishLogin(userId);
 }
 
-async function finish(userId: string) {
-  await startSession(userId);
-  const jar = await cookies();
-  jar.delete({ name: DEV_LINK_COOKIE, path: "/login" });
-  jar.delete({ name: EMAIL_COOKIE, path: "/login" });
-  const [company] = await db.select({ id: companies.id }).from(companies).where(eq(companies.userId, userId));
-  redirect(company ? "/app" : "/welkom");
-}
 
 export async function confirmLogin(formData: FormData) {
   const token = String(formData.get("token") ?? "");
   const userId = token ? await consumeLoginToken(token) : null;
   if (!userId) redirect("/login?fout=verlopen");
-  await finish(userId);
+  await finishLogin(userId);
 }
 
 export async function logout() {

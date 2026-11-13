@@ -4,7 +4,7 @@ import { and, eq, gt, isNull, lt, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { db, ready } from "@/db";
-import { loginTokens, sessions, users } from "@/db/schema";
+import { companies, loginTokens, sessions, users } from "@/db/schema";
 import { randomToken, sha256 } from "./secure";
 
 export const SESSION_COOKIE = "wb_session";
@@ -31,7 +31,7 @@ export async function createLoginToken(email: string) {
   return { token, code };
 }
 
-async function userIdFor(email: string) {
+export async function userIdFor(email: string) {
   let [user] = await db.select().from(users).where(eq(users.email, email));
   if (!user) {
     [user] = await db.insert(users).values({ id: randomUUID(), email, createdAt: iso(now()) }).returning();
@@ -104,4 +104,14 @@ export async function requireUser() {
   const user = await getUser();
   if (!user) redirect("/login");
   return user;
+}
+
+/** Starts the session, clears login cookies and sends the user on. Server-only: never export this from a "use server" file. */
+export async function finishLogin(userId: string): Promise<never> {
+  await startSession(userId);
+  const jar = await cookies();
+  jar.delete({ name: "wb_devlink", path: "/login" });
+  jar.delete({ name: "wb_login_email", path: "/login" });
+  const [company] = await db.select({ id: companies.id }).from(companies).where(eq(companies.userId, userId));
+  redirect(company ? "/app" : "/welkom");
 }
