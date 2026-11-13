@@ -12,7 +12,7 @@ const nav = [
 ];
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const company = await getCompany();
+  const company = await getCompany({ unpaid: true });
   return (
     <div className="min-h-dvh pb-20 sm:pb-0">
       <header className="no-print sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur">

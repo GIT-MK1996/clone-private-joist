@@ -7,6 +7,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Klusnota – offertes en facturen voor vakmensen",
   description: "Maak in 2 minuten een offerte op je telefoon. Klant zegt online akkoord, jij maakt er met één tik een factuur van.",
+  applicationName: "Klusnota",
+  appleWebApp: { capable: true, title: "Klusnota", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#e0a100" };

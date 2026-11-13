@@ -1,6 +1,9 @@
 import { getCompany } from "@/lib/data";
 import { removePaymentKey, saveCompany, savePaymentKey } from "@/lib/actions";
-import { VAT_RATES } from "@/lib/calc";
+import { VAT_RATES, eur } from "@/lib/calc";
+import { billingDisabled, PLANS, type Plan } from "@/lib/billing";
+import { cancelSubscription, openPortal, resumeSubscription } from "@/lib/billing-actions";
+import Link from "next/link";
 
 const PAY_MSG: Record<string, [string, string]> = {
   ok: ["Betalingen zijn gekoppeld ✓", "bg-emerald-50 text-emerald-800"],
@@ -12,10 +15,12 @@ const PAY_MSG: Record<string, [string, string]> = {
 export default async function SettingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ opgeslagen?: string; betaal?: string }>;
+  searchParams: Promise<{ opgeslagen?: string; betaal?: string; abo?: string }>;
 }) {
   const c = await getCompany();
-  const { opgeslagen, betaal } = await searchParams;
+  const { opgeslagen, betaal, abo } = await searchParams;
+  const until = c.subPeriodEnd ? new Date(c.subPeriodEnd).toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" }) : "";
+  const plan = PLANS[c.subPlan as Plan];
   const text: [keyof typeof c, string, string?][] = [
     ["name", "Bedrijfsnaam"],
     ["email", "E-mail (antwoorden van klanten komen hier)"],
@@ -102,6 +107,44 @@ export default async function SettingsPage({
         <p className="text-xs text-muted">
           Stripe: Dashboard → Developers → API keys → <strong>Secret key</strong> (begint met sk_test_). Mollie: Developers → API-sleutels. Begin met
           een testsleutel om het uit te proberen. De sleutel wordt versleuteld opgeslagen.
+        </p>
+      </section>
+
+      <section id="abonnement" className="card space-y-3 p-4">
+        <h2 className="font-semibold">Abonnement</h2>
+        {abo === "opgezegd" && <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Opgezegd. Je kunt Klusnota gebruiken tot {until}.</p>}
+        {abo === "hervat" && <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">Je abonnement loopt gewoon door ✓</p>}
+        {billingDisabled() ? (
+          <p className="text-sm text-muted">Betalen staat uit op deze omgeving.</p>
+        ) : (
+          <>
+            <p className="text-sm">
+              {c.subStatus === "trialing" ? "Gratis proefperiode" : plan ? `Klusnota ${plan.label.toLowerCase()}` : "Klusnota"}
+              {plan && <> · {eur(plan.cents)} excl. btw</>}
+              <br />
+              <span className="text-muted">
+                {c.subCancelAtEnd
+                  ? `Opgezegd: stopt op ${until}.`
+                  : c.subStatus === "trialing"
+                    ? `Eerste betaling op ${until}.`
+                    : c.subStatus === "past_due"
+                      ? "De laatste betaling is mislukt. Werk je betaalgegevens bij."
+                      : `Volgende betaling op ${until}.`}
+              </span>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {c.subCancelAtEnd ? (
+                <form action={resumeSubscription}><button className="btn-primary">Toch doorgaan</button></form>
+              ) : (
+                <form action={cancelSubscription}><button className="btn-secondary">Opzeggen</button></form>
+              )}
+              <form action={openPortal}><button className="btn-ghost">Betaalgegevens en facturen</button></form>
+            </div>
+          </>
+        )}
+        <p className="text-xs text-muted">
+          Je gegevens blijven van jou, ook na opzeggen.{" "}
+          <Link href="/api/export" className="font-semibold text-brand-text underline">Download al je documenten (CSV)</Link>
         </p>
       </section>
     </div>

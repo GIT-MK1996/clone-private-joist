@@ -4,17 +4,23 @@ import { redirect } from "next/navigation";
 import { db, ready } from "@/db";
 import { clients, companies, documents, events, lineItems } from "@/db/schema";
 import { requireUser } from "./auth";
+import { hasAccess, refreshIfStale } from "./billing";
 
 /**
  * The one place that reads data. Every query is scoped to the company of the
- * logged-in user. No session → /login, no company yet → /welkom.
+ * logged-in user. No session → /login, no company yet → /welkom,
+ * no running trial or subscription → /abonnement (hard paywall).
+ * Pass { unpaid: true } only for the paywall itself, settings chrome and the export.
  */
-export async function getCompany() {
+export async function getCompany(opts?: { unpaid?: boolean }) {
   await ready();
   const user = await requireUser();
   const [company] = await db.select().from(companies).where(eq(companies.userId, user.id));
   if (!company) redirect("/welkom");
-  return company;
+  if (opts?.unpaid) return company;
+  const fresh = await refreshIfStale(company);
+  if (!hasAccess(fresh)) redirect("/abonnement");
+  return fresh;
 }
 
 export async function getCompanyForUser(userId: string) {

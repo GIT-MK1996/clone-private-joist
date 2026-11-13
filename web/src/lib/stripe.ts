@@ -13,13 +13,13 @@ export type StripeSession = {
 };
 
 /** Stripe's REST API takes form-encoded bodies with bracket notation. */
-function form(obj: Record<string, string | number | undefined>) {
+export function form(obj: Record<string, string | number | undefined>) {
   const p = new URLSearchParams();
   for (const [k, v] of Object.entries(obj)) if (v !== undefined) p.append(k, String(v));
   return p;
 }
 
-async function call<T>(key: string, path: string, init?: { method?: string; body?: URLSearchParams }): Promise<T> {
+export async function call<T>(key: string, path: string, init?: { method?: string; body?: URLSearchParams }): Promise<T> {
   const res = await fetch(API + path, {
     method: init?.method ?? "GET",
     body: init?.body,

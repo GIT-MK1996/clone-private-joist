@@ -1,7 +1,7 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
-import { DDL } from "./ddl";
+import { DDL, MIGRATIONS } from "./ddl";
 
 const g = globalThis as unknown as {
   __libsql?: ReturnType<typeof createClient>;
@@ -26,4 +26,11 @@ export function ready() {
 async function init() {
   await client.execute("pragma foreign_keys = on");
   for (const stmt of DDL) await client.execute(stmt);
+  for (const stmt of MIGRATIONS) {
+    try {
+      await client.execute(stmt);
+    } catch (e) {
+      if (!/duplicate column/i.test(String(e))) throw e;
+    }
+  }
 }

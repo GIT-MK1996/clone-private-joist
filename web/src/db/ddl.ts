@@ -123,3 +123,14 @@ export const DDL = [
   )`,
   `create index if not exists payments_document on payments (document_id)`,
 ];
+
+// Columns added after launch. SQLite has no "add column if not exists", so init() ignores "duplicate column" errors.
+export const MIGRATIONS = [
+  `alter table companies add column sub_customer_id text not null default ''`,
+  `alter table companies add column sub_id text not null default ''`,
+  `alter table companies add column sub_status text not null default ''`,
+  `alter table companies add column sub_plan text not null default ''`,
+  `alter table companies add column sub_period_end text not null default ''`,
+  `alter table companies add column sub_cancel_at_end integer not null default 0`,
+  `alter table companies add column sub_checked_at text not null default ''`,
+];

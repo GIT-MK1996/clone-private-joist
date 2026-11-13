@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InstallTip } from "@/components/InstallTip";
 import { listDocuments } from "@/lib/data";
 import { createDocument } from "@/lib/actions";
 import { eur, effectiveStatus, formatDate, STATUS_LABEL, STATUS_TONE } from "@/lib/calc";
@@ -16,6 +17,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
 
   return (
     <div className="space-y-6">
+      <InstallTip />
       <div className="grid grid-cols-3 gap-3">
         <Stat label="Openstaande offertes" value={eur(sum(openQuotes))} sub={`${openQuotes.length} wachten op akkoord`} />
         <Stat label="Nog te ontvangen" value={eur(sum(unpaid))} sub={`${unpaid.length} facturen`} />

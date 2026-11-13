@@ -53,6 +53,13 @@ export const companies = sqliteTable("companies", {
   quoteValidDays: integer("quote_valid_days").notNull().default(30),
   nextQuoteNo: integer("next_quote_no").notNull().default(1),
   nextInvoiceNo: integer("next_invoice_no").notNull().default(1),
+  subCustomerId: text("sub_customer_id").notNull().default(""),
+  subId: text("sub_id").notNull().default(""),
+  subStatus: text("sub_status").notNull().default(""),
+  subPlan: text("sub_plan").notNull().default(""),
+  subPeriodEnd: text("sub_period_end").notNull().default(""),
+  subCancelAtEnd: integer("sub_cancel_at_end", { mode: "boolean" }).notNull().default(false),
+  subCheckedAt: text("sub_checked_at").notNull().default(""),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
 });

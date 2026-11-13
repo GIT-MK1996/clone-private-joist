@@ -69,8 +69,8 @@ export default function Landing() {
             Klusnota maakt offertes en facturen op je telefoon. Je klant zegt online akkoord, betaalt met iDEAL, en jij bent klaar. Geen boekhoudpakket, geen gedoe.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link href="/login" className="btn-primary px-6 py-3 text-base">Probeer het gratis</Link>
-            <span className="text-sm text-muted">Geen wachtwoord, geen creditcard</span>
+            <Link href="/login" className="btn-primary px-6 py-3 text-base">Probeer 14 dagen gratis</Link>
+            <span className="text-sm text-muted">Daarna € 12 per maand. Opzeggen met één klik.</span>
           </div>
         </div>
         <QuoteMock />
@@ -98,10 +98,30 @@ export default function Landing() {
         ))}
       </section>
 
+      <section id="prijs" className="mt-20">
+        <h2 className="text-2xl font-bold tracking-tight">Eén prijs. Alles erin.</h2>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="card p-6">
+            <p className="text-sm font-semibold text-muted">Per maand</p>
+            <p className="mt-1 text-3xl font-extrabold tabular-nums">€ 12<span className="text-base font-medium text-muted"> /maand</span></p>
+            <p className="mt-1 text-sm text-muted">excl. btw · maandelijks opzegbaar</p>
+          </div>
+          <div className="card relative p-6 ring-2 ring-brand">
+            <span className="absolute -top-2.5 right-4 rounded-full bg-brand px-2 py-0.5 text-xs font-bold text-brand-ink">2 maanden gratis</span>
+            <p className="text-sm font-semibold text-muted">Per jaar</p>
+            <p className="mt-1 text-3xl font-extrabold tabular-nums">€ 120<span className="text-base font-medium text-muted"> /jaar</span></p>
+            <p className="mt-1 text-sm text-muted">excl. btw · € 10 per maand</p>
+          </div>
+        </div>
+        <p className="mt-4 text-muted">
+          Onbeperkt offertes, facturen en klanten. Eerst 14 dagen gratis. Je prijs blijft gelijk zolang je klant bent.
+        </p>
+      </section>
+
       <section className="mt-20 rounded-3xl bg-ink px-6 py-12 text-center text-white sm:px-12">
         <h2 className="text-2xl font-bold text-balance sm:text-3xl">Morgen je eerste offerte versturen?</h2>
-        <p className="mx-auto mt-3 max-w-lg text-white/75">Account maken duurt een minuut. Je hoeft niets te installeren.</p>
-        <Link href="/login" className="btn-primary mt-6 px-6 py-3 text-base">Probeer het gratis</Link>
+        <p className="mx-auto mt-3 max-w-lg text-white/75">Account maken duurt een minuut. Je hoeft niets te installeren. De eerste 14 dagen zijn gratis.</p>
+        <Link href="/login" className="btn-primary mt-6 px-6 py-3 text-base">Probeer 14 dagen gratis</Link>
       </section>
 
       <footer className="mt-12 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6 text-sm text-muted">
